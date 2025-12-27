@@ -145,13 +145,16 @@ Write-Host ""
 Write-Host "⚠ RESTART REQUIRED!" -ForegroundColor Yellow
 Write-Host "Coordinate with cluster management if applicable" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Restart now? (Y/N)" -ForegroundColor Yellow
-$restart = Read-Host
+Write-Host "Restarting in 30 seconds (press Ctrl+C to cancel)..." -ForegroundColor Yellow
+Write-Host "Restarting in:" -ForegroundColor Yellow
 
-if ($restart -eq "Y" -or $restart -eq "y") {
-    Write-Host "Restarting in 30 seconds..." -ForegroundColor Yellow
-    Start-Sleep -Seconds 30
-    Restart-Computer -Force
-} else {
-    Write-Host "Remember to restart manually!" -ForegroundColor Yellow
+for ($i = 30; $i -gt 0; $i--) {
+    Write-Host "  $i seconds..." -ForegroundColor Yellow -NoNewline
+    Start-Sleep -Seconds 1
+    Write-Host "`r" -NoNewline
 }
+
+Write-Host ""
+Write-Host "Initiating restart now..." -ForegroundColor Green
+Start-Sleep -Seconds 1
+Restart-Computer -Force

@@ -5,7 +5,7 @@
 [![Windows](https://img.shields.io/badge/Windows-10%2F11%2FServer-0078D4?logo=windows)](https://www.microsoft.com/windows)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-0078D4?logo=powershell)](https://learn.microsoft.com/en-us/powershell/)
 
-**Version:** 1.1 Enterprise Extended - FIX  
+**Version:** 1.2 Enterprise Extended - FIX  
 **Testing Approach:** User-reported system responsiveness on personal test system  
 **Scope:** Windows 10/11/Server 2019/2022/2025 (4GB to 256TB+ systems)
 
@@ -287,16 +287,19 @@ Write-Host "  • Better handling of multiple running services" -ForegroundColor
 Write-Host ""
 Write-Host "⚠ RESTART REQUIRED!" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Restart now? (Y/N)" -ForegroundColor Yellow
-$restart = Read-Host
+Write-Host "Restarting in 10 seconds (press Ctrl+C to cancel)..." -ForegroundColor Yellow
+Write-Host "Restarting in:" -ForegroundColor Yellow
 
-if ($restart -eq "Y" -or $restart -eq "y") {
-    Write-Host "Restarting in 10 seconds..." -ForegroundColor Yellow
-    Start-Sleep -Seconds 10
-    Restart-Computer -Force
-} else {
-    Write-Host "Remember to restart manually to apply changes!" -ForegroundColor Yellow
+for ($i = 10; $i -gt 0; $i--) {
+    Write-Host "  $i seconds..." -ForegroundColor Yellow -NoNewline
+    Start-Sleep -Seconds 1
+    Write-Host "`r" -NoNewline
 }
+
+Write-Host ""
+Write-Host "Initiating restart now..." -ForegroundColor Green
+Start-Sleep -Seconds 1
+Restart-Computer -Force
 ```
 
 ---
@@ -483,16 +486,19 @@ Write-Host ""
 Write-Host "⚠ RESTART REQUIRED!" -ForegroundColor Yellow
 Write-Host "Coordinate with cluster management if applicable" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Restart now? (Y/N)" -ForegroundColor Yellow
-$restart = Read-Host
+Write-Host "Restarting in 30 seconds (press Ctrl+C to cancel)..." -ForegroundColor Yellow
+Write-Host "Restarting in:" -ForegroundColor Yellow
 
-if ($restart -eq "Y" -or $restart -eq "y") {
-    Write-Host "Restarting in 30 seconds..." -ForegroundColor Yellow
-    Start-Sleep -Seconds 30
-    Restart-Computer -Force
-} else {
-    Write-Host "Remember to restart manually!" -ForegroundColor Yellow
+for ($i = 30; $i -gt 0; $i--) {
+    Write-Host "  $i seconds..." -ForegroundColor Yellow -NoNewline
+    Start-Sleep -Seconds 1
+    Write-Host "`r" -NoNewline
 }
+
+Write-Host ""
+Write-Host "Initiating restart now..." -ForegroundColor Green
+Start-Sleep -Seconds 1
+Restart-Computer -Force
 ```
 
 ---

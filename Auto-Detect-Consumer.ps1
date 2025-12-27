@@ -130,13 +130,16 @@ Write-Host "  • Better handling of multiple running services" -ForegroundColor
 Write-Host ""
 Write-Host "⚠ RESTART REQUIRED!" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Restart now? (Y/N)" -ForegroundColor Yellow
-$restart = Read-Host
+Write-Host "Restarting in 10 seconds (press Ctrl+C to cancel)..." -ForegroundColor Yellow
+Write-Host "Restarting in:" -ForegroundColor Yellow
 
-if ($restart -eq "Y" -or $restart -eq "y") {
-    Write-Host "Restarting in 10 seconds..." -ForegroundColor Yellow
-    Start-Sleep -Seconds 10
-    Restart-Computer -Force
-} else {
-    Write-Host "Remember to restart manually to apply changes!" -ForegroundColor Yellow
+for ($i = 10; $i -gt 0; $i--) {
+    Write-Host "  $i seconds..." -ForegroundColor Yellow -NoNewline
+    Start-Sleep -Seconds 1
+    Write-Host "`r" -NoNewline
 }
+
+Write-Host ""
+Write-Host "Initiating restart now..." -ForegroundColor Green
+Start-Sleep -Seconds 1
+Restart-Computer -Force
