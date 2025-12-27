@@ -481,51 +481,6 @@ Write-Host ""
 Write-Host "⚠ RESTART REQUIRED!" -ForegroundColor Yellow
 Write-Host "Coordinate with cluster management if applicable" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Press any key to restart in 10 seconds (or Ctrl+C to cancel)..." -ForegroundColor Yellow
-Write-Host "Restarting in:" -ForegroundColor Yellow
-
-# Countdown timer - user can Ctrl+C to cancel
-for ($i = 10; $i -gt 0; $i--) {
-    Write-Host "  $i seconds..." -ForegroundColor Yellow -NoNewline
-    Start-Sleep -Seconds 1
-    Write-Host "`r" -NoNewline
-}
-
-Write-Host ""
-Write-Host "Initiating restart now..." -ForegroundColor Green
-Start-Sleep -Seconds 1
-Restart-Computer -Force
-```
-} else {
-    Write-Host "✓ Windows Server detected: $($osInfo.Caption)" -ForegroundColor Green
-}
-
-Write-Host ""
-
-# Step 4: Apply to registry
-Write-Host "[STEP 4/4] Applying registry change..." -ForegroundColor Yellow
-$regPath = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control"
-
-try {
-    reg add $regPath /v SvcHostSplitThresholdInKB /t REG_DWORD /d $selectedValue.dec /f | Out-Null
-    Write-Host "✓ Registry updated successfully" -ForegroundColor Green
-} catch {
-    Write-Host "✗ Failed to update registry: $_" -ForegroundColor Red
-    Exit 1
-}
-
-Write-Host ""
-Write-Host "========================================" -ForegroundColor Green
-Write-Host "✓ ENTERPRISE OPTIMIZATION APPLIED" -ForegroundColor Green
-Write-Host "========================================" -ForegroundColor Green
-Write-Host ""
-Write-Host "Configuration Summary:" -ForegroundColor Cyan
-Write-Host "  Detected RAM: $ramGB GB ($ramTB TB)" -ForegroundColor Green
-Write-Host "  Applied Value: $($selectedValue.dec) ($($selectedValue.hex))" -ForegroundColor Green
-Write-Host ""
-Write-Host "⚠ RESTART REQUIRED!" -ForegroundColor Yellow
-Write-Host "Coordinate with cluster management if applicable" -ForegroundColor Yellow
-Write-Host ""
 Write-Host "Restart now? (Y/N)" -ForegroundColor Yellow
 $restart = Read-Host
 
