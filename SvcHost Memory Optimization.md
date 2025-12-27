@@ -296,25 +296,6 @@ if ($restart -eq "Y" -or $restart -eq "y") {
     Write-Host "Remember to restart manually to apply changes!" -ForegroundColor Yellow
 }
 ```
-Write-Host ""
-Write-Host "Possible Improvements (User-Reported):" -ForegroundColor Cyan
-Write-Host "  • Improved system startup responsiveness" -ForegroundColor Green
-Write-Host "  • Smoother application launching" -ForegroundColor Green
-Write-Host "  • Better handling of multiple running services" -ForegroundColor Green
-Write-Host ""
-Write-Host "⚠ RESTART REQUIRED!" -ForegroundColor Yellow
-Write-Host ""
-Write-Host "Restart now? (Y/N)" -ForegroundColor Yellow
-$restart = Read-Host
-
-if ($restart -eq "Y" -or $restart -eq "y") {
-    Write-Host "Restarting in 10 seconds..." -ForegroundColor Yellow
-    Start-Sleep -Seconds 10
-    Restart-Computer -Force
-} else {
-    Write-Host "Remember to restart manually to apply changes!" -ForegroundColor Yellow
-}
-```
 
 ---
 
@@ -515,39 +496,6 @@ Write-Host "Initiating restart now..." -ForegroundColor Green
 Start-Sleep -Seconds 1
 Restart-Computer -Force
 ```
-    262144 = @{dec=274877906944; hex='0x4000000000'; platform='Maximum (256TB)'}
-}
-
-$selectedValue = $null
-if ($ramMap.ContainsKey($ramGB)) {
-    $selectedValue = $ramMap[$ramGB]
-    Write-Host "✓ Exact match found: $ramGB GB" -ForegroundColor Green
-} else {
-    $closestRAM = ($ramMap.Keys | Where-Object {$_ -lt $ramGB} | Measure-Object -Maximum).Maximum
-    if ($null -ne $closestRAM) {
-        $selectedValue = $ramMap[$closestRAM]
-        Write-Host "⚠ No exact match - using closest: $closestRAM GB" -ForegroundColor Yellow
-    }
-}
-
-if ($null -eq $selectedValue) {
-    Write-Host "ERROR: Could not find suitable configuration" -ForegroundColor Red
-    Exit 1
-}
-
-Write-Host "   Registry Value: $($selectedValue.dec)" -ForegroundColor Green
-Write-Host "   Hex Value: $($selectedValue.hex)" -ForegroundColor Green
-Write-Host ""
-
-# Step 3: Verify Windows Server
-Write-Host "[STEP 3/4] Verifying Windows Server..." -ForegroundColor Yellow
-$osInfo = Get-WmiObject -Class Win32_OperatingSystem
-if ($osInfo.Caption -notlike "*Server*") {
-    Write-Host "⚠ WARNING: Not Windows Server detected" -ForegroundColor Yellow
-    $proceed = Read-Host "   Continue anyway? (Y/N)"
-    if ($proceed -ne "Y" -and $proceed -ne "y") {
-        Exit 0
-    }
 } else {
     Write-Host "✓ Windows Server detected: $($osInfo.Caption)" -ForegroundColor Green
 }
