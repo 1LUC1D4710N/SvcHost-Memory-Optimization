@@ -23,7 +23,9 @@
 - [FAQ](#faq)
 - [Contributing](#contributing)
 
+---
 
+## Overview
 
 This repository provides registry optimization techniques for Windows systems of all sizes, from consumer gaming PCs to enterprise datacenter deployments.
 
