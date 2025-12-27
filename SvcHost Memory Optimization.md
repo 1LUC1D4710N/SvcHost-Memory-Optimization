@@ -134,19 +134,19 @@ Checkpoint-Computer -Description "SvcHost-Before" -RestorePointType "MODIFY_SETT
 
 ### RAM Size Mapping
 
-| RAM Size | Hex Value | Decimal | Use Case | Download |
-|----------|-----------|---------|----------|----------|
-| Default | 0x00380000 | 3,670,016 | Windows default (3.5GB) | [⬇ default.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/1.%20Default%20setting/SvcHostSplitThresholdInKB_default.reg) |
-| 4 GB | 0x00400000 | 4,194,304 | Entry-level systems | [⬇ 4GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/2.%204%20GB%20setting/SvcHostSplitThresholdInKB_4GB.reg) |
-| 6 GB | 0x00600000 | 6,291,456 | Older gaming PCs | [⬇ 6GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/3.%206%20GB%20setting/SvcHostSplitThresholdInKB_6GB.reg) |
-| 8 GB | 0x00800000 | 8,388,608 | Common baseline | [⬇ 8GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/4.%208%20GB%20setting/SvcHostSplitThresholdInKB_8GB.reg) |
-| 12 GB | 0x00c00000 | 12,582,912 | Mid-range | [⬇ 12GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/5.%2012%20GB%20setting/SvcHostSplitThresholdInKB_12GB.reg) |
-| 16 GB | 0x01000000 | 16,777,216 | Gaming/content creation | [⬇ 16GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/6.%2016%20GB%20setting/SvcHostSplitThresholdInKB_16GB.reg) |
-| 24 GB | 0x01800000 | 25,165,824 | Professional workstations | [⬇ 24GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/7.%2024%20GB%20setting/SvcHostSplitThresholdInKB_24GB.reg) |
-| 32 GB | 0x02000000 | 33,554,432 | Serious gaming/streaming | [⬇ 32GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/8.%2032%20GB%20setting/SvcHostSplitThresholdInKB_32GB.reg) |
-| 64 GB | 0x04000000 | 67,108,864 | High-end workstations | [⬇ 64GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/9.%2064%20GB%20setting/SvcHostSplitThresholdInKB_64GB.reg) |
-| 128 GB | 0x08000000 | 134,217,728 | Professional video/AI | [⬇ 128GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/10.%20128%20GB%20setting/SvcHostSplitThresholdInKB_128GB.reg) |
-| 256 GB | 0x10000000 | 268,435,456 | HEDT/specialized workstations | [⬇ 256GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/11.%20256%20GB%20setting/SvcHostSplitThresholdInKB_256GB.reg) |
+| RAM Size | Usable RAM | Hex Value | Decimal | Use Case | Download |
+|----------|-----------|-----------|---------|----------|----------|
+| Default | 3.5GB | 0x00380000 | 3,670,016 | Windows default | [⬇ default.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/1.%20Default%20setting/SvcHostSplitThresholdInKB_default.reg) |
+| 4 GB | 3GB | 0x00300000 | 3,145,728 | Entry-level systems | [⬇ 4GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/2.%204%20GB%20setting/SvcHostSplitThresholdInKB_4GB.reg) |
+| 6 GB | 5GB | 0x00500000 | 5,242,880 | Older gaming PCs | [⬇ 6GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/3.%206%20GB%20setting/SvcHostSplitThresholdInKB_6GB.reg) |
+| 8 GB | 7GB | 0x00700000 | 7,340,032 | Common baseline | [⬇ 8GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/4.%208%20GB%20setting/SvcHostSplitThresholdInKB_8GB.reg) |
+| 12 GB | 11GB | 0x00B00000 | 11,534,336 | Mid-range | [⬇ 12GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/5.%2012%20GB%20setting/SvcHostSplitThresholdInKB_12GB.reg) |
+| 16 GB | 15GB | 0x00F00000 | 15,728,640 | Gaming/content creation | [⬇ 16GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/6.%2016%20GB%20setting/SvcHostSplitThresholdInKB_16GB.reg) |
+| 24 GB | 23GB | 0x01700000 | 24,117,248 | Professional workstations | [⬇ 24GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/7.%2024%20GB%20setting/SvcHostSplitThresholdInKB_24GB.reg) |
+| 32 GB | 31GB | 0x01F00000 | 32,505,856 | Serious gaming/streaming | [⬇ 32GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/8.%2032%20GB%20setting/SvcHostSplitThresholdInKB_32GB.reg) |
+| 64 GB | 63GB | 0x03F00000 | 66,060,288 | High-end workstations | [⬇ 64GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/9.%2064%20GB%20setting/SvcHostSplitThresholdInKB_64GB.reg) |
+| 128 GB | 127GB | 0x07F00000 | 133,169,152 | Professional video/AI | [⬇ 128GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/10.%20128%20GB%20setting/SvcHostSplitThresholdInKB_128GB.reg) |
+| 256 GB | 255GB | 0x0FF00000 | 267,386,880 | HEDT/specialized workstations | [⬇ 256GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/11.%20256%20GB%20setting/SvcHostSplitThresholdInKB_256GB.reg) |
 
 **Note:** 256GB .reg files are not pre-generated. For systems with 256GB+ RAM, use the **Auto-Detect Script** which will calculate the correct value automatically.
 
@@ -274,19 +274,19 @@ if ($restart -eq "Y" -or $restart -eq "y") {
 
 ### RAM Size Mapping
 
-| RAM Size | Hex Value | Decimal | Use Case | Download |
-|----------|-----------|---------|----------|----------|
-| 256 GB | 0x10000000 | 268,435,456 | High-end HEDT/enterprise | [⬇ 256GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/11.%20256%20GB%20setting/SvcHostSplitThresholdInKB_256GB.reg) |
-| 512 GB | 0x20000000 | 536,870,912 | Enterprise servers | [⬇ 512GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/12.%20512%20GB%20setting/SvcHostSplitThresholdInKB_512GB.reg) |
-| 1 TB | 0x40000000 | 1,073,741,824 | Large datacenter nodes | [⬇ 1TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/13.%201%20TB%20setting/SvcHostSplitThresholdInKB_1TB.reg) |
-| 2 TB | 0x80000000 | 2,147,483,648 | High-memory clusters | [⬇ 2TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/14.%202%20TB%20setting/SvcHostSplitThresholdInKB_2TB.reg) |
-| 4 TB | 0x100000000 | 4,294,967,296 | Specialized workloads | [⬇ 4TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/15.%204%20TB%20setting/SvcHostSplitThresholdInKB_4TB.reg) |
-| 8 TB | 0x200000000 | 8,589,934,592 | Large-scale data processing | [⬇ 8TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/16.%208%20TB%20setting/SvcHostSplitThresholdInKB_8TB.reg) |
-| 16 TB | 0x400000000 | 17,179,869,184 | Enterprise-grade systems | [⬇ 16TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/17.%2016%20TB%20setting/SvcHostSplitThresholdInKB_16TB.reg) |
-| 32 TB | 0x800000000 | 34,359,738,368 | Datacenter scale | [⬇ 32TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/18.%2032%20TB%20setting/SvcHostSplitThresholdInKB_32TB.reg) |
-| 64 TB | 0x1000000000 | 68,719,476,736 | Large memory nodes | [⬇ 64TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/19.%2064%20TB%20setting/SvcHostSplitThresholdInKB_64TB.reg) |
-| 128 TB | 0x2000000000 | 137,438,953,472 | Virtualization hosts | [⬇ 128TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/20.%20128%20TB%20setting/SvcHostSplitThresholdInKB_128TB.reg) |
-| 256 TB | 0x4000000000 | 274,877,906,944 | Maximum (four-level paging) | [⬇ 256TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/21.%20256%20TB%20setting/SvcHostSplitThresholdInKB_256TB.reg) |
+| RAM Size | Usable RAM | Hex Value | Decimal | Use Case | Download |
+|----------|-----------|-----------|---------|----------|----------|
+| 256 GB | 255GB | 0x0FF00000 | 267,386,880 | High-end HEDT/enterprise | [⬇ 256GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/11.%20256%20GB%20setting/SvcHostSplitThresholdInKB_256GB.reg) |
+| 512 GB | 511GB | 0x1FF00000 | 536,608,768 | Enterprise servers | [⬇ 512GB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/12.%20512%20GB%20setting/SvcHostSplitThresholdInKB_512GB.reg) |
+| 1 TB | 1022GB | 0x3FF00000 | 1,072,668,672 | Large datacenter nodes | [⬇ 1TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/13.%201%20TB%20setting/SvcHostSplitThresholdInKB_1TB.reg) |
+| 2 TB | 2047GB | 0x7FF00000 | 2,147,450,880 | High-memory clusters | [⬇ 2TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/14.%202%20TB%20setting/SvcHostSplitThresholdInKB_2TB.reg) |
+| 4 TB | 4095GB | 0xFFF00000 | 4,295,032,832 | Specialized workloads | [⬇ 4TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/15.%204%20TB%20setting/SvcHostSplitThresholdInKB_4TB.reg) |
+| 8 TB | 8191GB | 0x1FFF00000 | 8,589,869,056 | Large-scale data processing | [⬇ 8TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/16.%208%20TB%20setting/SvcHostSplitThresholdInKB_8TB.reg) |
+| 16 TB | 16383GB | 0x3FFF00000 | 17,179,869,184 | Enterprise-grade systems | [⬇ 16TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/17.%2016%20TB%20setting/SvcHostSplitThresholdInKB_16TB.reg) |
+| 32 TB | 32767GB | 0x7FFF00000 | 34,359,607,296 | Datacenter scale | [⬇ 32TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/18.%2032%20TB%20setting/SvcHostSplitThresholdInKB_32TB.reg) |
+| 64 TB | 65535GB | 0xFFFF00000 | 68,719,083,520 | Large memory nodes | [⬇ 64TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/19.%2064%20TB%20setting/SvcHostSplitThresholdInKB_64TB.reg) |
+| 128 TB | 131071GB | 0x1FFFF00000 | 137,438,036,992 | Virtualization hosts | [⬇ 128TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/20.%20128%20TB%20setting/SvcHostSplitThresholdInKB_128TB.reg) |
+| 256 TB | 262143GB | 0x3FFFF00000 | 274,876,941,312 | Maximum (four-level paging) | [⬇ 256TB.reg](https://github.com/1LUC1D4710N/SvcHost-Memory-Optimization/blob/main/21.%20256%20TB%20setting/SvcHostSplitThresholdInKB_256TB.reg) |
 
 **Recommendation:** For Enterprise/Datacenter systems (256GB+), you now have both ready-to-use .reg files OR the **Auto-Detect Script** for dynamic calculation based on detected RAM.
 
