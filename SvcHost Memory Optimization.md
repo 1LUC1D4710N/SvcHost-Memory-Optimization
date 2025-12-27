@@ -153,9 +153,11 @@ Checkpoint-Computer -Description "SvcHost-Before" -RestorePointType "MODIFY_SETT
 ### Auto-Detect Script (Consumer)
 
 ```powershell
-# SvcHostSplitThresholdInKB - AUTO-DETECT (Consumer/Professional)
-# Automatically detects RAM and applies matching registry value
-# Supports: Windows 10/11, up to 256GB RAM
+# SvcHostSplitThresholdInKB - AUTO-DETECT RAM (Consumer/Professional)
+# Supports up to 256GB RAM
+# Automatically detects your system RAM and applies matching registry value
+# Accounts for ~400MB system reserved memory
+# Real-world observation: Matching RAM size appears to improve system responsiveness
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "SvcHost Memory Optimization" -ForegroundColor Cyan
@@ -173,47 +175,81 @@ if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 Write-Host "✓ Running as Administrator" -ForegroundColor Green
 Write-Host ""
 
-# Step 1: Detect RAM
+# Step 1: Detect RAM and account for system reserve
 Write-Host "[STEP 1/3] Detecting System RAM..." -ForegroundColor Yellow
 $totalMemoryBytes = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
-$ramGB = [math]::Round($totalMemoryBytes / 1GB)
-Write-Host "✓ Detected RAM: $ramGB GB" -ForegroundColor Green
+$ramGBExact = $totalMemoryBytes / 1GB
+
+# Account for ~400MB system reserve (GPU, BIOS, etc.)
+$systemReservedMB = 400
+$usableRAMBytes = $totalMemoryBytes - ($systemReservedMB * 1MB)
+$usableRAMGB = [math]::Floor($usableRAMBytes / 1GB)
+
+Write-Host "✓ Installed RAM: $([math]::Round($ramGBExact, 1)) GB" -ForegroundColor Green
+Write-Host "✓ Usable RAM (minus ~400MB reserve): $usableRAMGB GB" -ForegroundColor Green
 Write-Host ""
 
-# Step 2: Look up registry value
+# Step 2: Look up registry value based on usable RAM
 Write-Host "[STEP 2/3] Finding matching registry value..." -ForegroundColor Yellow
 
+# COMPLETE RAM to registry mapping (Consumer/Professional - up to 256GB)
+# These values are for USABLE RAM (after system reserve)
+# For example: 12GB installed = 11GB usable = use 11GB mapping
 $ramMap = @{
-    4 = @{dec=4194304; hex='0x00400000'}
-    6 = @{dec=6291456; hex='0x00600000'}
-    8 = @{dec=8388608; hex='0x00800000'}
-    12 = @{dec=12582912; hex='0x00c00000'}
-    16 = @{dec=16777216; hex='0x01000000'}
-    24 = @{dec=25165824; hex='0x01800000'}
-    32 = @{dec=33554432; hex='0x02000000'}
-    64 = @{dec=67108864; hex='0x04000000'}
-    128 = @{dec=134217728; hex='0x08000000'}
-    256 = @{dec=268435456; hex='0x10000000'}
+    3   = @{dec=3145728;      hex='0x00300000'; installed='4GB'}
+    5   = @{dec=5242880;      hex='0x00500000'; installed='6GB'}
+    7   = @{dec=7340032;      hex='0x00700000'; installed='8GB'}
+    11  = @{dec=11534336;     hex='0x00B00000'; installed='12GB'}
+    15  = @{dec=15728640;     hex='0x00F00000'; installed='16GB'}
+    23  = @{dec=24117248;     hex='0x01700000'; installed='24GB'}
+    31  = @{dec=32505856;     hex='0x01F00000'; installed='32GB'}
+    47  = @{dec=49283072;     hex='0x02F00000'; installed='48GB'}
+    63  = @{dec=66060288;     hex='0x03F00000'; installed='64GB'}
+    95  = @{dec=99614720;     hex='0x05F00000'; installed='96GB'}
+    127 = @{dec=133169152;    hex='0x07F00000'; installed='128GB'}
+    191 = @{dec=200278016;    hex='0x0BF00000'; installed='192GB'}
+    255 = @{dec=267386880;    hex='0x0FF00000'; installed='256GB'}
 }
 
+# Find the matching configuration
 $selectedValue = $null
-if ($ramMap.ContainsKey($ramGB)) {
-    $selectedValue = $ramMap[$ramGB]
-    Write-Host "✓ Exact match found: $ramGB GB" -ForegroundColor Green
-} else {
-    $closestRAM = ($ramMap.Keys | Where-Object {$_ -lt $ramGB} | Measure-Object -Maximum).Maximum
-    if ($null -ne $closestRAM) {
-        $selectedValue = $ramMap[$closestRAM]
-        Write-Host "⚠ No exact match for $ramGB GB" -ForegroundColor Yellow
-        Write-Host "   Using closest size: $closestRAM GB" -ForegroundColor Yellow
-    } else {
-        Write-Host "⚠ System has more than 256GB RAM" -ForegroundColor Yellow
-        Write-Host "   Use Enterprise/Datacenter script instead" -ForegroundColor Yellow
-        Exit 1
+$selectedRAM = $null
+$installedRAM = $null
+
+# First, try to find exact match for usable RAM
+foreach ($ramSize in $ramMap.Keys) {
+    if ($ramSize -eq $usableRAMGB) {
+        $selectedValue = $ramMap[$ramSize]
+        $selectedRAM = $usableRAMGB
+        $installedRAM = $selectedValue.installed
+        Write-Host "✓ Exact match found: $usableRAMGB GB usable (from $installedRAM installed)" -ForegroundColor Green
+        break
     }
 }
 
-Write-Host "   Registry Value: $($selectedValue.dec)" -ForegroundColor Green
+# If no exact match, find closest match below
+if ($null -eq $selectedValue) {
+    $sortedKeys = $ramMap.Keys | Sort-Object -Descending
+    foreach ($ramSize in $sortedKeys) {
+        if ($ramSize -lt $usableRAMGB) {
+            $selectedValue = $ramMap[$ramSize]
+            $selectedRAM = $ramSize
+            $installedRAM = $selectedValue.installed
+            Write-Host "⚠ No exact match for $usableRAMGB GB" -ForegroundColor Yellow
+            Write-Host "   Using closest match: $selectedRAM GB usable (from $installedRAM installed)" -ForegroundColor Yellow
+            break
+        }
+    }
+}
+
+# If still no match, error out
+if ($null -eq $selectedValue) {
+    Write-Host "ERROR: System RAM exceeds maximum supported (256GB)" -ForegroundColor Red
+    Write-Host "For enterprise datacenter systems, use the Enterprise Auto-Detect script" -ForegroundColor Yellow
+    Exit 1
+}
+
+Write-Host "   Registry Value (Decimal): $($selectedValue.dec)" -ForegroundColor Green
 Write-Host "   Hex Value: $($selectedValue.hex)" -ForegroundColor Green
 Write-Host ""
 
@@ -236,8 +272,30 @@ Write-Host "✓ OPTIMIZATION APPLIED" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Configuration Summary:" -ForegroundColor Cyan
-Write-Host "  Installed RAM: $ramGB GB" -ForegroundColor Green
+Write-Host "  Installed RAM: $([math]::Round($ramGBExact, 1)) GB" -ForegroundColor Green
+Write-Host "  Usable RAM: $usableRAMGB GB (after ~400MB system reserve)" -ForegroundColor Green
+Write-Host "  Registry Mapping: $installedRAM installed = $selectedRAM GB usable" -ForegroundColor Green
 Write-Host "  Applied Value: $($selectedValue.dec) ($($selectedValue.hex))" -ForegroundColor Green
+Write-Host "  Registry Key: SvcHostSplitThresholdInKB" -ForegroundColor Green
+Write-Host ""
+Write-Host "Possible Improvements (User-Reported):" -ForegroundColor Cyan
+Write-Host "  • Improved system startup responsiveness" -ForegroundColor Green
+Write-Host "  • Smoother application launching" -ForegroundColor Green
+Write-Host "  • Better handling of multiple running services" -ForegroundColor Green
+Write-Host ""
+Write-Host "⚠ RESTART REQUIRED!" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Restart now? (Y/N)" -ForegroundColor Yellow
+$restart = Read-Host
+
+if ($restart -eq "Y" -or $restart -eq "y") {
+    Write-Host "Restarting in 10 seconds..." -ForegroundColor Yellow
+    Start-Sleep -Seconds 10
+    Restart-Computer -Force
+} else {
+    Write-Host "Remember to restart manually to apply changes!" -ForegroundColor Yellow
+}
+```
 Write-Host ""
 Write-Host "Possible Improvements (User-Reported):" -ForegroundColor Cyan
 Write-Host "  • Improved system startup responsiveness" -ForegroundColor Green
@@ -295,8 +353,9 @@ if ($restart -eq "Y" -or $restart -eq "y") {
 ### Auto-Detect Script (Enterprise)
 
 ```powershell
-# SvcHostSplitThresholdInKB - AUTO-DETECT (Enterprise/Datacenter)
+# SvcHostSplitThresholdInKB - AUTO-DETECT RAM (Enterprise/Datacenter)
 # Automatically detects RAM and applies matching registry value
+# Accounts for ~400MB system reserved memory
 # Supports: Windows Server 2019/2022/2025, 256GB to 256TB+ RAM
 
 Write-Host "========================================" -ForegroundColor Cyan
@@ -313,33 +372,149 @@ if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 Write-Host "✓ Running as Administrator" -ForegroundColor Green
 Write-Host ""
 
-# Step 1: Detect RAM
+# Step 1: Detect RAM and account for system reserve
 Write-Host "[STEP 1/4] Detecting System RAM..." -ForegroundColor Yellow
 $totalMemoryBytes = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
-$ramGB = [math]::Round($totalMemoryBytes / 1GB)
-$ramTB = [math]::Round($totalMemoryBytes / 1TB, 2)
+$ramGBExact = $totalMemoryBytes / 1GB
+$ramTBExact = $totalMemoryBytes / 1TB
 
-Write-Host "✓ Detected RAM: $ramGB GB ($ramTB TB)" -ForegroundColor Green
+# Account for ~400MB system reserve (scales proportionally for large systems)
+# For enterprise, we use proportional reserve: 400MB + 100MB per TB
+$systemReservedMB = 400 + ([math]::Floor($ramTBExact) * 100)
+$usableRAMBytes = $totalMemoryBytes - ($systemReservedMB * 1MB)
+$usableRAMGB = [math]::Floor($usableRAMBytes / 1GB)
+$usableRAMTB = $usableRAMBytes / 1TB
+
+Write-Host "✓ Installed RAM: $([math]::Round($ramGBExact, 1)) GB ($([math]::Round($ramTBExact, 2)) TB)" -ForegroundColor Green
+Write-Host "✓ Usable RAM (minus reserve): $usableRAMGB GB ($([math]::Round($usableRAMTB, 2)) TB)" -ForegroundColor Green
 Write-Host ""
 
-if ($ramGB -gt 262144) {
+# Step 2: Look up registry value based on usable RAM
+Write-Host "[STEP 2/4] Finding matching registry value..." -ForegroundColor Yellow
+
+# Enterprise/Datacenter mapping - values for USABLE RAM
+# These are calculated assuming ~400MB base + 100MB per TB reserve
+$ramMap = @{
+    255 = @{dec=267386880;     hex='0x0FF00000'; installed='256GB'}
+    511 = @{dec=536608768;     hex='0x1FF00000'; installed='512GB'}
+    1022 = @{dec=1072668672;   hex='0x3FF00000'; installed='1TB'}
+    2047 = @{dec=2147450880;   hex='0x7FF00000'; installed='2TB'}
+    4095 = @{dec=4295032832;   hex='0xFFF00000'; installed='4TB'}
+    8191 = @{dec=8589869056;   hex='0x1FFF00000'; installed='8TB'}
+    16383 = @{dec=17179869184; hex='0x3FFF00000'; installed='16TB'}
+    32767 = @{dec=34359607296; hex='0x7FFF00000'; installed='32TB'}
+    65535 = @{dec=68719083520; hex='0xFFFF00000'; installed='64TB'}
+    131071 = @{dec=137438036992; hex='0x1FFFF00000'; installed='128TB'}
+    262143 = @{dec=274876941312; hex='0x3FFFF00000'; installed='256TB'}
+}
+
+# Find the matching configuration
+$selectedValue = $null
+$selectedRAM = $null
+$installedRAM = $null
+
+# First, try to find exact match
+foreach ($ramSize in $ramMap.Keys) {
+    if ($ramSize -eq $usableRAMGB) {
+        $selectedValue = $ramMap[$ramSize]
+        $selectedRAM = $usableRAMGB
+        $installedRAM = $selectedValue.installed
+        Write-Host "✓ Exact match found: $usableRAMGB GB usable (from $installedRAM installed)" -ForegroundColor Green
+        break
+    }
+}
+
+# If no exact match, find closest below
+if ($null -eq $selectedValue) {
+    $sortedKeys = $ramMap.Keys | Sort-Object -Descending
+    foreach ($ramSize in $sortedKeys) {
+        if ($ramSize -lt $usableRAMGB) {
+            $selectedValue = $ramMap[$ramSize]
+            $selectedRAM = $ramSize
+            $installedRAM = $selectedValue.installed
+            Write-Host "⚠ No exact match for $usableRAMGB GB" -ForegroundColor Yellow
+            Write-Host "   Using closest match: $selectedRAM GB usable (from $installedRAM installed)" -ForegroundColor Yellow
+            break
+        }
+    }
+}
+
+# Check if exceeds practical limit
+if ($usableRAMGB -gt 262143) {
     Write-Host "⚠ WARNING: System exceeds 256TB (practical limit)" -ForegroundColor Yellow
 }
 
-# Step 2: Look up registry value
-Write-Host "[STEP 2/4] Finding matching registry value..." -ForegroundColor Yellow
+if ($null -eq $selectedValue) {
+    Write-Host "ERROR: Could not find suitable configuration" -ForegroundColor Red
+    Exit 1
+}
 
-$ramMap = @{
-    256 = @{dec=268435456; hex='0x10000000'; platform='Enterprise'}
-    512 = @{dec=536870912; hex='0x20000000'; platform='Enterprise'}
-    1024 = @{dec=1073741824; hex='0x40000000'; platform='Datacenter'}
-    2048 = @{dec=2147483648; hex='0x80000000'; platform='Datacenter'}
-    4096 = @{dec=4294967296; hex='0x100000000'; platform='Datacenter'}
-    8192 = @{dec=8589934592; hex='0x200000000'; platform='Datacenter'}
-    16384 = @{dec=17179869184; hex='0x400000000'; platform='Enterprise Scale'}
-    32768 = @{dec=34359738368; hex='0x800000000'; platform='Enterprise Scale'}
-    65536 = @{dec=68719476736; hex='0x1000000000'; platform='Datacenter Scale'}
-    131072 = @{dec=137438953472; hex='0x2000000000'; platform='Large Datacenter'}
+Write-Host "   Registry Value (Decimal): $($selectedValue.dec)" -ForegroundColor Green
+Write-Host "   Hex Value: $($selectedValue.hex)" -ForegroundColor Green
+Write-Host ""
+
+# Step 3: Verify Windows Server
+Write-Host "[STEP 3/4] Verifying Windows Server..." -ForegroundColor Yellow
+$osInfo = Get-WmiObject -Class Win32_OperatingSystem
+if ($osInfo.Caption -notlike "*Server*") {
+    Write-Host "⚠ WARNING: Not Windows Server detected" -ForegroundColor Yellow
+    $proceed = Read-Host "   Continue anyway? (Y/N)"
+    if ($proceed -ne "Y" -and $proceed -ne "y") {
+        Exit 0
+    }
+} else {
+    Write-Host "✓ Windows Server detected: $($osInfo.Caption)" -ForegroundColor Green
+}
+
+Write-Host ""
+
+# Step 4: Apply to registry
+Write-Host "[STEP 4/4] Applying registry change..." -ForegroundColor Yellow
+$regPath = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control"
+
+try {
+    reg add $regPath /v SvcHostSplitThresholdInKB /t REG_DWORD /d $selectedValue.dec /f | Out-Null
+    Write-Host "✓ Registry updated successfully" -ForegroundColor Green
+} catch {
+    Write-Host "✗ Failed to update registry: $_" -ForegroundColor Red
+    Exit 1
+}
+
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Green
+Write-Host "✓ ENTERPRISE OPTIMIZATION APPLIED" -ForegroundColor Green
+Write-Host "========================================" -ForegroundColor Green
+Write-Host ""
+Write-Host "Configuration Summary:" -ForegroundColor Cyan
+Write-Host "  Installed RAM: $([math]::Round($ramGBExact, 1)) GB ($([math]::Round($ramTBExact, 2)) TB)" -ForegroundColor Green
+Write-Host "  Usable RAM: $usableRAMGB GB ($([math]::Round($usableRAMTB, 2)) TB) after system reserve" -ForegroundColor Green
+Write-Host "  Registry Mapping: $installedRAM installed = $selectedRAM GB usable" -ForegroundColor Green
+Write-Host "  Applied Value: $($selectedValue.dec) ($($selectedValue.hex))" -ForegroundColor Green
+Write-Host "  Registry Key: SvcHostSplitThresholdInKB" -ForegroundColor Green
+Write-Host ""
+Write-Host "Expected Improvements:" -ForegroundColor Cyan
+Write-Host "  • Optimized service distribution across available memory" -ForegroundColor Green
+Write-Host "  • Reduced memory fragmentation in service processes" -ForegroundColor Green
+Write-Host "  • Better handling of large-scale workloads" -ForegroundColor Green
+Write-Host ""
+Write-Host "⚠ RESTART REQUIRED!" -ForegroundColor Yellow
+Write-Host "Coordinate with cluster management if applicable" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Press any key to restart in 10 seconds (or Ctrl+C to cancel)..." -ForegroundColor Yellow
+Write-Host "Restarting in:" -ForegroundColor Yellow
+
+# Countdown timer - user can Ctrl+C to cancel
+for ($i = 10; $i -gt 0; $i--) {
+    Write-Host "  $i seconds..." -ForegroundColor Yellow -NoNewline
+    Start-Sleep -Seconds 1
+    Write-Host "`r" -NoNewline
+}
+
+Write-Host ""
+Write-Host "Initiating restart now..." -ForegroundColor Green
+Start-Sleep -Seconds 1
+Restart-Computer -Force
+```
     262144 = @{dec=274877906944; hex='0x4000000000'; platform='Maximum (256TB)'}
 }
 
